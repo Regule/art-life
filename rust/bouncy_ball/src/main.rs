@@ -3,6 +3,12 @@ use ggez::graphics::{self, Color};
 use ggez::{Context, GameResult};
 use ggez::glam::*;
 
+
+struct PhysicalObject{
+    
+}
+
+
 struct MainState {
     pos_x: f32,
 }
