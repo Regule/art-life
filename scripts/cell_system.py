@@ -47,23 +47,11 @@ class UpdateFunction:
 
 class NeuroConway:
 
-
-    GLIDER = np.array([
-        [0.0, 0.0, 0.0, 0.0, 0.0],
-        [0.0, 0.0, 1.0, 0.0, 0.0],
-        [1.0, 0.0, 1.0, 0.0, 0.0],
-        [0.0, 1.0, 1.0, 0.0, 0.0],
-        [0.0, 0.0, 0.0, 0.0, 0.0],
-        ])
-
     def __init__(self, shape, agregation, activation, update):
         self.agregation = agregation
         self.activation = activation 
         self.update = update 
         self.grid = np.zeros(shape)
-        #if initial_state == 'GLIDER':
-        #    self.grid = np.zeros((width, height))
-        #    self.grid[50:55, 50:55] = NeuroConway.GLIDER
 
     def get_grid_height(self):
         return self.grid.shape[1]
