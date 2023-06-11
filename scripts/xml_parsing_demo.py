@@ -18,7 +18,7 @@ print("Element 1 text:", element1.text)
 # Modifying element attributes
 element2 = root.find('element2')
 element2.set('attribute', 'new_value')
-tree.write('example_modified.xml')  # Saving modified XML to a new file
+#tree.write('example_modified.xml')  # Saving modified XML to a new file
 
 # Creating new elements
 new_element = ET.Element('new_element')
