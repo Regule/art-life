@@ -1,5 +1,22 @@
 import pygame
 
+
+#==================================================================================================
+#                                       PHYSICS MODEL 
+#==================================================================================================
+
+class PillbugBody:
+
+    def __init__(self, shape, mass):
+        self.shape = shape
+        self.mass = mass
+
+class Pillbug:
+
+    def __init__(self):
+        pass
+
+
 # Initialize Pygame
 pygame.init()
 
