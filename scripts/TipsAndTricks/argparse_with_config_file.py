@@ -1,4 +1,7 @@
-
+'''
+This is a simple script with class that allows you to read command line parameters
+from XML file. Rather usefull for experiments.
+'''
 import argparse
 import xml.etree.ElementTree as ET
 
@@ -41,7 +44,7 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
 
 def main():
     # Parse command line arguments
-    parser = ExtendedArgumentParser(description='Process some parameters.')
+    parser = ExtendedArgumentParser(description=__doc__)
     parser.add_argument('--param1', type=int, default=None, help='Parameter 1')
     parser.add_argument('--param2', type=float, default=None, help='Parameter 2')
     parser.add_argument('--param3', type=str, default=None, help='Parameter 3')
