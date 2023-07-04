@@ -38,6 +38,45 @@ void generate_random_force_matrix(){
   }
 }
 
+void generate_preset_force_matrix(int preset){
+  if(preset==1){
+    colorForceMatrix[0][0] = 0.5;
+    colorForceMatrix[0][1] = 0.0;
+    colorForceMatrix[0][2] = 0.0;
+    colorForceMatrix[0][3] = 0.0;
+    colorForceMatrix[1][0] = 0.0;
+    colorForceMatrix[1][1] = 0.5;
+    colorForceMatrix[1][2] = 0.0;
+    colorForceMatrix[1][3] = 0.0;
+    colorForceMatrix[2][0] = 0.0;
+    colorForceMatrix[2][1] = 0.0;
+    colorForceMatrix[2][2] = 0.5;
+    colorForceMatrix[2][3] = 0.0;
+    colorForceMatrix[3][0] = 0.0;
+    colorForceMatrix[3][1] = 0.0;
+    colorForceMatrix[3][2] = 0.0;
+    colorForceMatrix[3][3] = 0.5;
+  }
+  else if(preset==2){
+    colorForceMatrix[0][0] = 0.2;
+    colorForceMatrix[0][1] = -0.2;
+    colorForceMatrix[0][2] = -0.2;
+    colorForceMatrix[0][3] = -0.2;
+    colorForceMatrix[1][0] = 0.2;
+    colorForceMatrix[1][1] = 0.2;
+    colorForceMatrix[1][2] = -0.2;
+    colorForceMatrix[1][3] = -0.2;
+    colorForceMatrix[2][0] = -0.2;
+    colorForceMatrix[2][1] = -0.2;
+    colorForceMatrix[2][2] = 0.2;
+    colorForceMatrix[2][3] = -0.2;
+    colorForceMatrix[3][0] = -0.2;
+    colorForceMatrix[3][1] = 0.2;
+    colorForceMatrix[3][2] = -0.2;
+    colorForceMatrix[3][3] = 0.2;
+  }
+}
+
 Particle particles[MAX_PARTICLE_COUNT];
 
 Particle initialize_random_particle(){
@@ -59,45 +98,43 @@ void initializeParticles() {
 }
 
 void updateParticles(double dt) {
-    for (int i = 0; i < MAX_PARTICLE_COUNT; i++) {
-        particles[i].x += particles[i].vx*dt;
-        particles[i].y += particles[i].vy*dt;
+  for (int i = 0; i < MAX_PARTICLE_COUNT; i++) {
+      particles[i].x += particles[i].vx*dt;
+      particles[i].y += particles[i].vy*dt;
 
-        // Bounce off walls
-        if (particles[i].x < 0 || particles[i].x > WINDOW_WIDTH) {
-            particles[i].vx *= -1;
-        }
-        if (particles[i].y < 0 || particles[i].y > WINDOW_HEIGHT) {
-            particles[i].vy *= -1;
-        }
-
-        // Apply interactions with other particles
-        for (int j = 0; j < particle_count; j++) {
-            if (i != j) {
-                float dx = particles[j].x - particles[i].x;
-                float dy = particles[j].y - particles[i].y;
-                float distance = sqrt(dx * dx + dy * dy);
-
-               // if (distance < 5) {
-                    // Bounce on collision
-               //     particles[i].vx *= -1;
-               //     particles[i].vy *= -1;
-               // } else {
-                    // Determine force based on colors
-                    int color1 = particles[i].color;
-                    int color2 = particles[j].color;
-                    float force = colorForceMatrix[color1][color2];
-
-                    // Apply attraction or repulsion
-                    float forceX = force * dx / distance;
-                    float forceY = force * dy / distance;
-
-                    particles[i].vx += forceX*dt;
-                    particles[i].vy += forceY*dt;
-               // }
-            }
-        }
+    // Wraparound
+    if(particles[i].x<0){
+      particles[i].x = WINDOW_WIDTH + particles[i].x;
+    }else if(particles[i].x>WINDOW_WIDTH){
+      particles[i].x = particles[i].x-WINDOW_WIDTH;
     }
+    if(particles[i].y<0){
+      particles[i].y = WINDOW_HEIGHT + particles[i].y;
+    }else if(particles[i].y>WINDOW_HEIGHT){
+      particles[i].y = particles[i].y-WINDOW_HEIGHT;
+    }
+
+    // Apply interactions with other particles
+    for (int j = 0; j < particle_count; j++) {
+      if (i != j) {
+        float dx = particles[j].x - particles[i].x;
+        float dy = particles[j].y - particles[i].y;
+        float distance = sqrt(dx * dx + dy * dy);
+
+        // Determine force based on colors
+        int color1 = particles[i].color;
+        int color2 = particles[j].color;
+        float force = colorForceMatrix[color1][color2];
+
+        // Apply attraction or repulsion
+        float forceX = force * dx / distance;
+        float forceY = force * dy / distance;
+
+        particles[i].vx += forceX*dt;
+        particles[i].vy += forceY*dt;
+      }
+    }
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,7 +165,7 @@ void drawParticles(SDL_Renderer* renderer) {
     SDL_RenderPresent(renderer);
 }
 
-int main() {
+int main(int argc, char **argv) {
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
@@ -151,7 +188,12 @@ int main() {
         return -1;
     }
 
+  if(argc==2){
+    generate_preset_force_matrix(atoi(argv[1]));
+  }else{
     generate_random_force_matrix();
+
+  }
 
     // Initialize particles
     initializeParticles();
