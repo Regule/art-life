@@ -56,23 +56,39 @@ void generate_preset_force_matrix(int preset){
     colorForceMatrix[3][1] = 0.0;
     colorForceMatrix[3][2] = 0.0;
     colorForceMatrix[3][3] = 0.5;
-  }
-  else if(preset==2){
+  }else if(preset==2){
+    colorForceMatrix[0][0] = 0.6;
+    colorForceMatrix[0][1] = -0.6;
+    colorForceMatrix[0][2] = -0.6;
+    colorForceMatrix[0][3] = -0.6;
+    colorForceMatrix[1][0] = 0.6;
+    colorForceMatrix[1][1] = 0.6;
+    colorForceMatrix[1][2] = -0.6;
+    colorForceMatrix[1][3] = -0.6;
+    colorForceMatrix[2][0] = -0.6;
+    colorForceMatrix[2][1] = -0.6;
+    colorForceMatrix[2][2] = 0.6;
+    colorForceMatrix[2][3] = -0.6;
+    colorForceMatrix[3][0] = -0.6;
+    colorForceMatrix[3][1] = 0.6;
+    colorForceMatrix[3][2] = -0.6;
+    colorForceMatrix[3][3] = 0.6;
+  }else if(preset==3){
     colorForceMatrix[0][0] = 0.2;
-    colorForceMatrix[0][1] = -0.2;
-    colorForceMatrix[0][2] = -0.2;
+    colorForceMatrix[0][1] = 0.2;
+    colorForceMatrix[0][2] = 0.0;
     colorForceMatrix[0][3] = -0.2;
-    colorForceMatrix[1][0] = 0.2;
+    colorForceMatrix[1][0] = -0.2;
     colorForceMatrix[1][1] = 0.2;
-    colorForceMatrix[1][2] = -0.2;
-    colorForceMatrix[1][3] = -0.2;
-    colorForceMatrix[2][0] = -0.2;
+    colorForceMatrix[1][2] = 0.2;
+    colorForceMatrix[1][3] = 0.0;
+    colorForceMatrix[2][0] = 0.0;
     colorForceMatrix[2][1] = -0.2;
     colorForceMatrix[2][2] = 0.2;
-    colorForceMatrix[2][3] = -0.2;
+    colorForceMatrix[2][3] = 0.2;
     colorForceMatrix[3][0] = -0.2;
-    colorForceMatrix[3][1] = 0.2;
-    colorForceMatrix[3][2] = -0.2;
+    colorForceMatrix[3][1] = -0.2;
+    colorForceMatrix[3][2] = 0.2;
     colorForceMatrix[3][3] = 0.2;
   }
 }
@@ -99,8 +115,23 @@ void initializeParticles() {
 
 void updateParticles(double dt) {
   for (int i = 0; i < MAX_PARTICLE_COUNT; i++) {
-      particles[i].x += particles[i].vx*dt;
-      particles[i].y += particles[i].vy*dt;
+    particles[i].x += particles[i].vx*dt;
+    particles[i].y += particles[i].vy*dt;
+    
+    double resistance_factor = 0.8; 
+    
+    double dvx = particles[i].vx*resistance_factor*dt;
+    double dvy = particles[i].vy*resistance_factor*dt;
+    if(particles[i].vy<dvy){
+      particles[i].vy=0;
+    }else{
+      particles[i].vy-=dvy;
+    }
+    if(particles[i].vx<dvx){
+      particles[i].vx=0;
+    }else{
+      particles[i].vx-=dvx;
+    }
 
     // Wraparound
     if(particles[i].x<0){
@@ -146,9 +177,9 @@ void drawParticles(SDL_Renderer* renderer) {
 
     for (int i = 0; i < particle_count; i++) {
         SDL_SetRenderDrawColor(renderer,
-            (particles[i].color % 8) * 32,
-            (particles[i].color % 4) * 64,
-            (particles[i].color % 2) * 128,
+            ((particles[i].color+1) % 8) * 32,
+            ((particles[i].color+1) % 4) * 64,
+            ((particles[i].color+1) % 2) * 128,
             255
         );
 
