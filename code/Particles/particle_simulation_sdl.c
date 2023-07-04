@@ -32,7 +32,7 @@ float colorForceMatrix[MAX_NUMBER_OF_COLORS][MAX_NUMBER_OF_COLORS];
 void generate_random_force_matrix(){
   for (int i = 0; i < number_of_colors; i++) {
       for (int j = 0; j < number_of_colors; j++) {
-        colorForceMatrix[i][j] = (-1 + ((double)rand() / RAND_MAX) * 2)*0.00001; 
+        colorForceMatrix[i][j] = (-1 + ((double)rand() / RAND_MAX) * 2)*0.1; 
         printf("Color %d attracts color %d with %f force\n",i,j,colorForceMatrix[i][j]);
       }
   }
@@ -173,7 +173,7 @@ int main() {
 
         Uint32 timestamp = SDL_GetTicks();
         
-        double dt = (timestamp - last_timestamp)/1.0;
+        double dt = (timestamp - last_timestamp)/1000.0;
         last_timestamp = timestamp;
         // Update particles
         updateParticles(dt); 
