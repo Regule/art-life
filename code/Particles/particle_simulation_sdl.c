@@ -4,11 +4,21 @@
 #include <math.h>
 #include <SDL2/SDL.h>
 
+//--------------------------------------------------------------------------------------------------
+//                                              CONFIGURATION
+//--------------------------------------------------------------------------------------------------
+
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
-#define NUM_PARTICLES 1000
-#define NUM_COLORS 16
+#define MAX_PARTICLE_COUNT 1000
+#define MAX_NUMBER_OF_COLORS 16
 
+int particle_count = MAX_PARTICLE_COUNT;
+int number_of_colors = 4;
+
+//--------------------------------------------------------------------------------------------------
+//                                          PARTICLE MODEL 
+//--------------------------------------------------------------------------------------------------
 typedef struct {
     float x;
     float y;
@@ -17,24 +27,30 @@ typedef struct {
     int color;
 } Particle;
 
-int colorForceMatrix[NUM_COLORS][NUM_COLORS];
+int colorForceMatrix[MAX_NUMBER_OF_COLORS][MAX_NUMBER_OF_COLORS];
 
-Particle particles[NUM_PARTICLES];
+Particle particles[MAX_PARTICLE_COUNT];
+
+Particle initialize_random_particle(){
+  Particle p;
+  p.x = (float)(rand() % WINDOW_WIDTH);
+  p.y = (float)(rand() % WINDOW_HEIGHT);
+  p.vx = ((float)rand() / RAND_MAX) * 2 - 1;
+  p.vy = ((float)rand() / RAND_MAX) * 2 - 1;
+  p.color = rand() % number_of_colors;
+  return p;
+}
 
 void initializeParticles() {
     srand(time(NULL));
 
-    for (int i = 0; i < NUM_PARTICLES; i++) {
-        particles[i].x = (float)(rand() % WINDOW_WIDTH);
-        particles[i].y = (float)(rand() % WINDOW_HEIGHT);
-        particles[i].vx = ((float)rand() / RAND_MAX) * 2 - 1;
-        particles[i].vy = ((float)rand() / RAND_MAX) * 2 - 1;
-        particles[i].color = rand() % NUM_COLORS;
+    for (int i = 0; i < particle_count; i++) {
+      particles[i] = initialize_random_particle();
     }
 }
 
 void updateParticles(double dt) {
-    for (int i = 0; i < NUM_PARTICLES; i++) {
+    for (int i = 0; i < MAX_PARTICLE_COUNT; i++) {
         particles[i].x += particles[i].vx*dt;
         particles[i].y += particles[i].vy*dt;
 
@@ -47,7 +63,7 @@ void updateParticles(double dt) {
         }
 
         // Apply interactions with other particles
-        for (int j = 0; j < NUM_PARTICLES; j++) {
+        for (int j = 0; j < particle_count; j++) {
             if (i != j) {
                 float dx = particles[j].x - particles[i].x;
                 float dy = particles[j].y - particles[i].y;
@@ -75,11 +91,14 @@ void updateParticles(double dt) {
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+//                                         VISUALISATION  
+//--------------------------------------------------------------------------------------------------
 void drawParticles(SDL_Renderer* renderer) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    for (int i = 0; i < NUM_PARTICLES; i++) {
+    for (int i = 0; i < particle_count; i++) {
         SDL_SetRenderDrawColor(renderer,
             (particles[i].color % 8) * 32,
             (particles[i].color % 4) * 64,
@@ -123,13 +142,9 @@ int main() {
         return -1;
     }
 
-    for (int i = 0; i < NUM_COLORS; i++) {
-        for (int j = 0; j < NUM_COLORS; j++) {
-            if(i==j){
-              colorForceMatrix[i][j] == 1;
-            }else{
-              colorForceMatrix[i][j] = -1 + ((double)rand() / RAND_MAX) * 2; 
-            }
+    for (int i = 0; i < number_of_colors; i++) {
+        for (int j = 0; j < number_of_colors; j++) {
+          colorForceMatrix[i][j] = -1 + ((double)rand() / RAND_MAX) * 2; 
         }
     }
 
@@ -153,7 +168,7 @@ int main() {
 
         Uint32 timestamp = SDL_GetTicks();
         
-        double dt = (timestamp - last_timestamp)/10.0;
+        double dt = (timestamp - last_timestamp)/1.0;
         last_timestamp = timestamp;
         // Update particles
         updateParticles(dt); 
