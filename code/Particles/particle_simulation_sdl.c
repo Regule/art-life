@@ -32,7 +32,7 @@ float colorForceMatrix[MAX_NUMBER_OF_COLORS][MAX_NUMBER_OF_COLORS];
 void generate_random_force_matrix(){
   for (int i = 0; i < number_of_colors; i++) {
       for (int j = 0; j < number_of_colors; j++) {
-        colorForceMatrix[i][j] = (-1 + ((double)rand() / RAND_MAX) * 2)*0.1; 
+        colorForceMatrix[i][j] = (-1 + ((double)rand() / RAND_MAX) * 2); 
         printf("Color %d attracts color %d with %f force\n",i,j,colorForceMatrix[i][j]);
       }
   }
@@ -106,7 +106,6 @@ Particle initialize_random_particle(){
 }
 
 void initializeParticles() {
-    srand(time(NULL));
 
     for (int i = 0; i < particle_count; i++) {
       particles[i] = initialize_random_particle();
@@ -197,6 +196,7 @@ void drawParticles(SDL_Renderer* renderer) {
 }
 
 int main(int argc, char **argv) {
+    srand(time(NULL));
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
