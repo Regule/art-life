@@ -20,14 +20,23 @@ int number_of_colors = 4;
 //                                          PARTICLE MODEL 
 //--------------------------------------------------------------------------------------------------
 typedef struct {
-    float x;
-    float y;
-    float vx;
-    float vy;
+    double x;
+    double y;
+    double vx;
+    double vy;
     int color;
 } Particle;
 
-int colorForceMatrix[MAX_NUMBER_OF_COLORS][MAX_NUMBER_OF_COLORS];
+float colorForceMatrix[MAX_NUMBER_OF_COLORS][MAX_NUMBER_OF_COLORS];
+
+void generate_random_force_matrix(){
+  for (int i = 0; i < number_of_colors; i++) {
+      for (int j = 0; j < number_of_colors; j++) {
+        colorForceMatrix[i][j] = (-1 + ((double)rand() / RAND_MAX) * 2)*0.00001; 
+        printf("Color %d attracts color %d with %f force\n",i,j,colorForceMatrix[i][j]);
+      }
+  }
+}
 
 Particle particles[MAX_PARTICLE_COUNT];
 
@@ -35,8 +44,8 @@ Particle initialize_random_particle(){
   Particle p;
   p.x = (float)(rand() % WINDOW_WIDTH);
   p.y = (float)(rand() % WINDOW_HEIGHT);
-  p.vx = ((float)rand() / RAND_MAX) * 2 - 1;
-  p.vy = ((float)rand() / RAND_MAX) * 2 - 1;
+  p.vx = 0.0; //((float)rand() / RAND_MAX) * 2 - 1;
+  p.vy = 0.0; //((float)rand() / RAND_MAX) * 2 - 1;
   p.color = rand() % number_of_colors;
   return p;
 }
@@ -83,8 +92,8 @@ void updateParticles(double dt) {
                     float forceX = force * dx / distance;
                     float forceY = force * dy / distance;
 
-                    particles[i].vx += forceX;
-                    particles[i].vy += forceY;
+                    particles[i].vx += forceX*dt;
+                    particles[i].vy += forceY*dt;
                // }
             }
         }
@@ -142,11 +151,7 @@ int main() {
         return -1;
     }
 
-    for (int i = 0; i < number_of_colors; i++) {
-        for (int j = 0; j < number_of_colors; j++) {
-          colorForceMatrix[i][j] = -1 + ((double)rand() / RAND_MAX) * 2; 
-        }
-    }
+    generate_random_force_matrix();
 
     // Initialize particles
     initializeParticles();
