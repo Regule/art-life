@@ -2,6 +2,15 @@
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
+//                                             CLASS DECLARATIONS 
+//--------------------------------------------------------------------------------------------------
+class Vec2D;
+class Environment;
+class Kinematics;
+class Dynamics;
+class PhysicalEntity;
+
+//--------------------------------------------------------------------------------------------------
 //                                          TWO DIMENSIONAL VECTOR 
 //--------------------------------------------------------------------------------------------------
 
@@ -52,7 +61,53 @@ public:
         }
         return *this;
     }
+
+  // Add other vector to this one in place (save results to this vector)
+  void operator+=(const Vec2D& other){
+    x += other.x;
+    y += other.y;
+  }
 };
+
+//--------------------------------------------------------------------------------------------------
+//                                            PHYSICAL OBJECT 
+//--------------------------------------------------------------------------------------------------
+class ChargeMatrix{
+
+};
+
+class Environment{
+  int width;
+  int height;
+  double viscosity;
+};
+
+class Kinematics{
+  Vec2D position;
+  Vec2D velocity;
+  Vec2D acceleration;
+
+  void update(const Dynamics &d, double dt){
+    position += velocity*dt;
+    velocity += acceleration*dt;
+  }
+};
+
+class Dynamics{
+  double mass;
+  double friction_coefficent;
+  int charge_id;
+  
+  void update_kinematics(Kinematics *k, const Environment &env, double dt)const{
+
+  }
+};
+
+class PhysicalEntity{
+  Kinematics kinematics;
+
+};
+
 
 //--------------------------------------------------------------------------------------------------
 //                                             MAIN FUNCTION 
