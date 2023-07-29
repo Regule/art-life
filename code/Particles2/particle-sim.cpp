@@ -85,7 +85,9 @@ class Kinematics{
 class Dynamics{
   double mass;
   double friction_coefficent;
-  
+  Vec2D momentum;
+  Vec2D external_force;
+
 };
 
 class Particle{
