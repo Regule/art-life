@@ -5,10 +5,9 @@
 //                                             CLASS DECLARATIONS 
 //--------------------------------------------------------------------------------------------------
 class Vec2D;
-class Environment;
 class Kinematics;
 class Dynamics;
-class PhysicalEntity;
+class Particle;
 
 //--------------------------------------------------------------------------------------------------
 //                                          TWO DIMENSIONAL VECTOR 
@@ -72,16 +71,6 @@ public:
 //--------------------------------------------------------------------------------------------------
 //                                            PHYSICAL OBJECT 
 //--------------------------------------------------------------------------------------------------
-class ChargeMatrix{
-
-};
-
-class Environment{
-  int width;
-  int height;
-  double viscosity;
-};
-
 class Kinematics{
   Vec2D position;
   Vec2D velocity;
@@ -96,14 +85,10 @@ class Kinematics{
 class Dynamics{
   double mass;
   double friction_coefficent;
-  int charge_id;
   
-  void update_kinematics(Kinematics *k, const Environment &env, double dt)const{
-
-  }
 };
 
-class PhysicalEntity{
+class Particle{
   Kinematics kinematics;
 
 };
