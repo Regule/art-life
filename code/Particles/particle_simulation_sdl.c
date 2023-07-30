@@ -12,6 +12,7 @@
 #define WINDOW_HEIGHT 600
 #define MAX_PARTICLE_COUNT 1000
 #define MAX_NUMBER_OF_COLORS 16
+#define REPULSION_RADIUS 4.0
 
 int particle_count = MAX_PARTICLE_COUNT;
 int number_of_colors = 4;
@@ -27,12 +28,12 @@ typedef struct {
     int color;
 } Particle;
 
-float colorForceMatrix[MAX_NUMBER_OF_COLORS][MAX_NUMBER_OF_COLORS];
+double colorForceMatrix[MAX_NUMBER_OF_COLORS][MAX_NUMBER_OF_COLORS];
 
 void generate_random_force_matrix(){
   for (int i = 0; i < number_of_colors; i++) {
       for (int j = 0; j < number_of_colors; j++) {
-        colorForceMatrix[i][j] = (-1 + ((double)rand() / RAND_MAX) * 2); 
+        colorForceMatrix[i][j] = (-3 + ((double)rand() / RAND_MAX) * 6); 
         printf("Color %d attracts color %d with %f force\n",i,j,colorForceMatrix[i][j]);
       }
   }
@@ -97,10 +98,10 @@ Particle particles[MAX_PARTICLE_COUNT];
 
 Particle initialize_random_particle(){
   Particle p;
-  p.x = (float)(rand() % WINDOW_WIDTH);
-  p.y = (float)(rand() % WINDOW_HEIGHT);
-  p.vx = 0.0; //((float)rand() / RAND_MAX) * 2 - 1;
-  p.vy = 0.0; //((float)rand() / RAND_MAX) * 2 - 1;
+  p.x = (double)(rand() % WINDOW_WIDTH);
+  p.y = (double)(rand() % WINDOW_HEIGHT);
+  p.vx = 0.0; //((double)rand() / RAND_MAX) * 2 - 1;
+  p.vy = 0.0; //((double)rand() / RAND_MAX) * 2 - 1;
   p.color = rand() % number_of_colors;
   return p;
 }
@@ -117,7 +118,7 @@ void updateParticles(double dt) {
     particles[i].x += particles[i].vx*dt;
     particles[i].y += particles[i].vy*dt;
     
-    double resistance_factor = 0.8; 
+    double resistance_factor = 0.1; 
     
     double dvx = particles[i].vx*resistance_factor*dt;
     double dvy = particles[i].vy*resistance_factor*dt;
@@ -133,32 +134,39 @@ void updateParticles(double dt) {
     }
 
     // Wraparound
-    if(particles[i].x<0){
+    while(particles[i].x<0){
       particles[i].x = WINDOW_WIDTH + particles[i].x;
-    }else if(particles[i].x>WINDOW_WIDTH){
+    }
+    while(particles[i].x>WINDOW_WIDTH){
       particles[i].x = particles[i].x-WINDOW_WIDTH;
     }
-    if(particles[i].y<0){
+    while(particles[i].y<0){
       particles[i].y = WINDOW_HEIGHT + particles[i].y;
-    }else if(particles[i].y>WINDOW_HEIGHT){
+    }
+    while(particles[i].y>WINDOW_HEIGHT){
       particles[i].y = particles[i].y-WINDOW_HEIGHT;
     }
 
     // Apply interactions with other particles
     for (int j = 0; j < particle_count; j++) {
       if (i != j) {
-        float dx = particles[j].x - particles[i].x;
-        float dy = particles[j].y - particles[i].y;
-        float distance = sqrt(dx * dx + dy * dy);
+        double dx = particles[j].x - particles[i].x;
+        double dy = particles[j].y - particles[i].y;
+        double distance = sqrt(dx * dx + dy * dy);
 
-        // Determine force based on colors
-        int color1 = particles[i].color;
-        int color2 = particles[j].color;
-        float force = colorForceMatrix[color1][color2];
-
+        double force = 0;
+        if(distance < REPULSION_RADIUS){
+          // On small distances calculate strong repulsion force
+          force = distance/REPULSION_RADIUS - 1;
+        }else{
+          // Otherwise determine force based on colors
+          int color1 = particles[i].color;
+          int color2 = particles[j].color;
+          force = colorForceMatrix[color1][color2];
+        }
         // Apply attraction or repulsion
-        float forceX = force * dx / distance;
-        float forceY = force * dy / distance;
+        double forceX = force * dx / distance;
+        double forceY = force * dy / distance;
 
         particles[i].vx += forceX*dt;
         particles[i].vy += forceY*dt;

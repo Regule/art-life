@@ -61,11 +61,12 @@ public:
         return *this;
     }
 
-  // Add other vector to this one in place (save results to this vector)
-  void operator+=(const Vec2D& other){
-    x += other.x;
-    y += other.y;
-  }
+    // Add other vector to this one in place (save results to this vector)
+    void operator+=(const Vec2D& other){
+      x += other.x;
+      y += other.y;
+    }
+
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -76,18 +77,14 @@ class Kinematics{
   Vec2D velocity;
   Vec2D acceleration;
 
-  void update(const Dynamics &d, double dt){
+  void update(double dt){
     position += velocity*dt;
     velocity += acceleration*dt;
   }
-};
 
-class Dynamics{
-  double mass;
-  double friction_coefficent;
-  Vec2D momentum;
-  Vec2D external_force;
-
+  Vec2D get_position() const{
+    return this->position;
+  }
 };
 
 class Particle{
