@@ -42,11 +42,11 @@ class LSystem:
 
     def __init__(self, rules, axiom):
         self.rules = rules
-        self.sequence = list(axiom)
+        self.sequence = axiom
 
     def step(self):
         # If there is no rule use identity rule
-        self.sequence = (self.rules.get(element, element) for element in self.sequence)
+        self.sequence = ''.join(self.rules.get(element, element) for element in self.sequence)
 
 
 def lsystem_rule_string(txt):
@@ -62,6 +62,7 @@ def draw_tree(window, axiom, initial_length, angle, starting_point, angle_step):
     position = starting_point
     length = initial_length
 
+    axiom = ''.join(axiom)
     for char in axiom:
         if char == 'F':
             new_x = position[0] + length * math.cos(math.radians(angle))
@@ -120,7 +121,7 @@ def main(args):
         l_system.step()
 
     window.fill(BG_COLOR)
-    draw_tree(window, l_system.sequence, 10, 0, args.starting_point, args.angle_step)
+    draw_tree(window, l_system.sequence, 10, 90, args.starting_point, args.angle_step)
 
     # Keep the window open until the user closes it
     running = True
