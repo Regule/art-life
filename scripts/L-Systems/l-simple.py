@@ -53,7 +53,7 @@ def lsystem_rule_string(txt):
     entires = txt.split(';')
     rules = {}
     for entry in entires:
-        base, target = entry.split('->')
+        base, target = entry.split('@')
         rules[base] = target
     return rules
 
