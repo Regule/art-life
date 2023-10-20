@@ -1,3 +1,4 @@
+import sys
 import argparse
 import pygame as pg
 import numpy as np
@@ -61,6 +62,8 @@ class ParticleModelConfiguration:
     def get_variant_count(self):
         return self.variaton_relations.shape[0]
 
+
+
 class ParticleModel:
 
     def __init__(self, cfg=ParticleModelConfiguration()):
@@ -71,14 +74,100 @@ class ParticleModel:
             positions_y = np.random.rand(1,cfg.particle_count)*cfg.simulation_size[1]
             other_values = np.zeros([4,cfg.particle_count])
             self.state = np.vstack([positions_x,positions_y,other_values])
-            print(self.state)
 
         except Exception as e:
             exception_type = type(e)
             raise exception_type(f'During initialization of particle model exception occured {type(e).__name__} -> {e}')
 
-try:
-    cfg = ParticleModelConfiguration(particle_count=3)
-    model = ParticleModel(cfg)
-except Exception as e:
-    print(e)
+    def update_model(self, dt):
+        self.apply_external_forces()
+        self.update_inertial_model(dt)
+
+    def update_inertial_model(self, dt):
+        transformation_matrix = np.array([[1.0, 0.0, dt, 0.0, dt*dt, 0.0],
+                                         [0.0, 1.0, 0.0, dt, 0.0, dt*dt],
+                                         [0.0, 0.0, 1.0, 0.0, dt, 0.0],
+                                         [0.0, 0.0, 0.0, 1.0, 0.0, dt],
+                                         [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                         [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]])
+        self.state = transformation_matrix @ self.state
+
+    def apply_external_forces(self):
+        self.state[-2:,:] = 1.0
+
+#===================================================================================================
+#                                            USER INTERFACE 
+#===================================================================================================
+
+class UserInterfaceConfig:
+
+    MINIMUM_PARTICLE_RADIUS = 3
+    DEFAULT_TIME_SCALING = 0.001
+    DEFAULT_BG_COLOR = [0, 0, 0]
+
+    def __init__(self, particle_radius=MINIMUM_PARTICLE_RADIUS, time_scaling=DEFAULT_TIME_SCALING,
+                 bg_color=DEFAULT_BG_COLOR):
+        try:
+            if particle_radius < self.MINIMUM_PARTICLE_RADIUS:
+                raise ValueError(f'Particle radius must be larger than {self.MINIMUM_PARTICLE_RADIUS} however value {particle_radius} was given')
+            self.particle_radius = particle_radius
+
+            if time_scaling <= 0:
+                raise ValueError(f'Time scaling must be larger than 0 (suggested values in range 0 to 1).')
+            self.time_scaling = time_scaling
+
+            # FIXME: CHECK COLOR RANGE
+            if len(bg_color) != 3:
+                raise ValueError(f'Color value must be a three dimensional integer vector with values in range from 0 to 255 however value {bg_color} was given.')
+            self.bg_color = bg_color
+
+        except Exception as e:
+            exception_type = type(e)
+            raise exception_type(f'During initialization of UI config exception occured {type(e).__name__} -> {e}')
+
+
+class UserInterface:
+
+    def __init__(self, cfg=UserInterfaceConfig(), model=ParticleModel()):
+        try:
+            self.model = model
+            pg.init()
+            self.screen = pg.display.set_mode(model.cfg.simulation_size)
+            self.timer = pg.time.Clock()
+            self.cfg = cfg
+            self.running = False
+        except Exception as e:
+            exception_type = type(e)
+            raise exception_type(f'During initialization of user interface exception occured {type(e).__name__} -> {e}')
+        
+    def loop(self):
+        self.running = True
+        while self.running:
+            self.clear_screen()
+            self.draw_particles()
+            pg.display.flip() 
+            self.handle_events()
+            dt = self.timer.tick()*self.cfg.time_scaling
+            self.model.update_model(dt)
+    
+    def clear_screen(self):
+        self.screen.fill(self.cfg.bg_color)
+
+    def handle_events(self):
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+               self.running = False 
+
+    def draw_particles(self):
+        for i in range(self.model.cfg.particle_count):
+            particle_position = np.array(self.model.state[0:2,i], dtype=np.int64).tolist()
+            pg.draw.circle(self.screen,
+                           PARTICLE_COLORS[self.model.variants[i]],
+                           particle_position,
+                           self.cfg.particle_radius) 
+
+model_cfg = ParticleModelConfiguration()
+model = ParticleModel(model_cfg)
+cfg = UserInterfaceConfig(particle_radius=3)
+ui = UserInterface(cfg=cfg, model=model)
+ui.loop()
