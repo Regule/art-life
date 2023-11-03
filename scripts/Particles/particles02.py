@@ -111,8 +111,14 @@ class ParticleModel:
                           distance
                           )
         force = np.where(force==np.Inf, 0.0, force)
-        force = force.sum(axis=0)
-        self.state[-2:,:] = force
+        factor_x = distance / np.broadcast_to(position_vector[:,0],(position_vector.shape[0],position_vector.shape[0]))
+        factor_y = distance / np.broadcast_to(position_vector[:,1],(position_vector.shape[0],position_vector.shape[0]))
+
+        self.state[-1,:] = np.sum(force * factor_x, axis=0)
+        self.state[-2,:] = np.sum(force * factor_y, axis=0)
+
+        #force = force.sum(axis=0)        
+        #self.state[-2:,:] = force
 
 
 #===================================================================================================
