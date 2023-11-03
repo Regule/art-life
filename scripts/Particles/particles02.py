@@ -8,13 +8,12 @@ from scipy.spatial import distance_matrix
 #                                                GLOBALS 
 #===================================================================================================
 
+# FIXME: SUPER UGLY
+np.seterr(divide='ignore')
 
-DEFAULT_VARIANT_RELATIONS = np.array([[0.1, -0.1, 0.01, 0.2, -0.2, 0.12],
-                                      [0.01, 0.1, -0.1, 0.2, -0.2, 0.12],
-                                      [-0.1, 0.01, 0.01, 0.2, -0.2, 0.12],
-                                      [0.2, -0.2, 0.12, 0.1, -0.1, 0.01],
-                                      [0.01, 0.2, -0.2, 0.12, 0.01, 0.1],
-                                      [0.01, 0.2, -0.2, 0.12, -0.1, 0.01]
+DEFAULT_VARIANT_RELATIONS = np.array([[0.1, -0.0, 0.0],
+                                      [0.0, 0.1, -0.0],
+                                      [-0.0, 0.0, 0.1],
                                       ])
 
 PARTICLE_COLORS = [[255,0,0],
@@ -81,6 +80,10 @@ class ParticleModel:
             positions_y = np.random.rand(1,cfg.particle_count)*cfg.simulation_size[1]
             other_values = np.zeros([4,cfg.particle_count])
             self.state = np.vstack([positions_x,positions_y,other_values])
+            self.force_base = np.zeros((self.variants.shape[0], self.variants.shape[0]), dtype=np.float64)
+            for y in range(self.variants.shape[0]):
+                for x in range(self.variants.shape[0]):
+                    self.force_base =  self.cfg.variaton_relations[self.variants[y]][self.variants[x]]
 
         except Exception as e:
             exception_type = type(e)
@@ -103,10 +106,11 @@ class ParticleModel:
 
     def apply_external_forces(self):
         position_vector = self.state[:2,:].transpose()
-        force = distance_matrix(position_vector, position_vector)
-        for y in range(force.shape[0]):
-            for x in range(force.shape[1]):
-                force[y][x] = force[y][x] * self.cfg.variaton_relations[self.variants[y]][self.variants[x]]
+        distance = distance_matrix(position_vector, position_vector)
+        force = np.divide(self.force_base,
+                          distance
+                          )
+        force = np.where(force==np.Inf, 0.0, force)
         force = force.sum(axis=0)
         self.state[-2:,:] = force
 
@@ -187,9 +191,9 @@ class UserInterface:
 #===================================================================================================
 
 def main():
-    model_cfg = ParticleModelConfiguration(particle_count=500)
+    model_cfg = ParticleModelConfiguration(particle_count=100)
     model = ParticleModel(model_cfg)
-    cfg = UserInterfaceConfig(particle_radius=3, time_scaling=0.00001)
+    cfg = UserInterfaceConfig(particle_radius=3, time_scaling=0.01)
     ui = UserInterface(cfg=cfg, model=model)
     ui.loop()
 
