@@ -2,6 +2,7 @@ import sys
 import argparse
 import pygame as pg
 import numpy as np
+from scipy.spatial import distance_matrix
 
 #===================================================================================================
 #                                                GLOBALS 
@@ -93,7 +94,14 @@ class ParticleModel:
         self.state = transformation_matrix @ self.state
 
     def apply_external_forces(self):
-        self.state[-2:,:] = 1.0
+        position_vector = self.state[:2,:].transpose()
+        force = distance_matrix(position_vector, position_vector)
+        for y in range(force.shape[0]):
+            for x in range(force.shape[1]):
+                force[y][x] = force[y][x] * self.cfg.variaton_relations[self.variants[y]][self.variants[x]]
+        force = force.sum(axis=0)
+        self.state[-2:,:] = force
+
 
 #===================================================================================================
 #                                            USER INTERFACE 
@@ -168,6 +176,6 @@ class UserInterface:
 
 model_cfg = ParticleModelConfiguration()
 model = ParticleModel(model_cfg)
-cfg = UserInterfaceConfig(particle_radius=3)
+cfg = UserInterfaceConfig(particle_radius=3, time_scaling=0.0001)
 ui = UserInterface(cfg=cfg, model=model)
 ui.loop()
