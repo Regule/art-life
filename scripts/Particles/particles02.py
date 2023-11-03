@@ -9,14 +9,20 @@ from scipy.spatial import distance_matrix
 #===================================================================================================
 
 
-DEFAULT_VARIANT_RELATIONS = np.array([[0.1, -0.1, 0.0],
-                              [0.0, 0.1, -0.1],
-                              [-0.1, 0.0, 0.1]
-                              ])
+DEFAULT_VARIANT_RELATIONS = np.array([[0.1, -0.1, 0.01, 0.2, -0.2, 0.12],
+                                      [0.01, 0.1, -0.1, 0.2, -0.2, 0.12],
+                                      [-0.1, 0.01, 0.01, 0.2, -0.2, 0.12],
+                                      [0.2, -0.2, 0.12, 0.1, -0.1, 0.01],
+                                      [0.01, 0.2, -0.2, 0.12, 0.01, 0.1],
+                                      [0.01, 0.2, -0.2, 0.12, -0.1, 0.01]
+                                      ])
 
 PARTICLE_COLORS = [[255,0,0],
                    [0,255,0],
-                   [0,0,255]
+                   [0,0,255],
+                   [0,255,255],
+                   [255,0,255],
+                   [255,255,0]
                    ]
 
 
@@ -28,7 +34,7 @@ class ParticleModelConfiguration:
 
     DEFAULT_SIMULATION_SIZE = (500,500)
     MINIMUM_SIMULATION_SIZE = 100
-    MAX_VARIANT_COUNT = 3
+    MAX_VARIANT_COUNT = 6
     DEFAULT_PARTICLE_COUNT = 100
 
     def __init__(self,
@@ -176,8 +182,17 @@ class UserInterface:
                            particle_position,
                            self.cfg.particle_radius) 
 
-model_cfg = ParticleModelConfiguration()
-model = ParticleModel(model_cfg)
-cfg = UserInterfaceConfig(particle_radius=3, time_scaling=0.0001)
-ui = UserInterface(cfg=cfg, model=model)
-ui.loop()
+#===================================================================================================
+#                                         MAIN FUNCTION 
+#===================================================================================================
+
+def main():
+    model_cfg = ParticleModelConfiguration(particle_count=500)
+    model = ParticleModel(model_cfg)
+    cfg = UserInterfaceConfig(particle_radius=3, time_scaling=0.00001)
+    ui = UserInterface(cfg=cfg, model=model)
+    ui.loop()
+
+if __name__ == '__main__':
+    main()
+    
