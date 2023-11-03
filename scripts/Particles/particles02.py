@@ -92,6 +92,8 @@ class ParticleModel:
                                          [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                          [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]])
         self.state = transformation_matrix @ self.state
+        self.state[0,:] = np.remainder(self.state[0,:], self.cfg.simulation_size[0])
+        self.state[1,:] = np.remainder(self.state[1,:], self.cfg.simulation_size[1])
 
     def apply_external_forces(self):
         position_vector = self.state[:2,:].transpose()
